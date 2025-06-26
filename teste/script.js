@@ -14,12 +14,9 @@ buscarClimaBtn.addEventListener('click', async () => {
         return;
     }
 
-    // URL da sua API de clima (use o IP do seu computador se for testar no celular)
-    // Se estiver testando no mesmo computador que a API:
-    const apiUrl = `http://localhost:3003/clima?cidade=${encodeURIComponent(cidade)}`;
-    // Se estiver testando no celular (na mesma rede Wi-Fi que o PC):
-    // const apiUrl = `http://192.168.111.142:3003/clima?cidade=${encodeURIComponent(cidade)}`;
-    // Lembre-se de trocar o IP 192.168.111.142 pelo IP atual do seu computador!
+    // 🆓 USANDO API GRATUITA (Open-Meteo) - SEM LIMITES!
+    // const apiUrl = `http://localhost:3003/clima?cidade=${encodeURIComponent(cidade)}`; // API limitada
+    const apiUrl = `http://localhost:3003/clima-gratis?cidade=${encodeURIComponent(cidade)}`; // API gratuita
 
     dadosClimaDiv.innerHTML = '<p>Buscando dados do clima...</p>'; // Mensagem de carregamento
 
@@ -34,13 +31,21 @@ buscarClimaBtn.addEventListener('click', async () => {
         const data = await response.json(); // Converte a resposta para JSON
 
         // --- Inserir os dados do clima no HTML ---
+        const fonteInfo = data.fonte ? `<p><small>📡 Fonte: ${data.fonte}</small></p>` : '';
+        const ventoInfo = data.ventoVelocidade ? `<p>💨 Vento: ${data.ventoVelocidade} km/h</p>` : '';
+        const coordenadasInfo = data.coordenadas ? 
+            `<p><small>📍 Coordenadas: ${data.coordenadas.lat.toFixed(4)}, ${data.coordenadas.lon.toFixed(4)}</small></p>` : '';
+
         dadosClimaDiv.innerHTML = `
             <h2>${data.cidade}, ${data.pais}</h2>
-            <p>Temperatura: ${data.temperatura}°C</p>
-            <p>Sensação térmica: ${data.sensacaoTermica}°C</p>
-            <p>Umidade: ${data.umidade}%</p>
-            <p>Condição: ${data.descricao}</p>
-            <img src="${data.icone}" alt="Ícone do clima">
+            <div style="font-size: 3em; margin: 10px 0;">${data.icone}</div>
+            <p><strong>🌡️ ${data.temperatura}°C</strong></p>
+            <p>🤔 Sensação: ${data.sensacaoTermica}°C</p>
+            <p>💧 Umidade: ${data.umidade}%</p>
+            ${ventoInfo}
+            <p>☁️ ${data.descricao}</p>
+            ${coordenadasInfo}
+            ${fonteInfo}
         `;
 
     } catch (error) {
