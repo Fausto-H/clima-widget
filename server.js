@@ -149,8 +149,36 @@ app.get('/clima-gratis/coordenadas', async (req, res) => {
             return '🌤️';
         };
 
+        // Processar o display_name para extrair bairro e município
+        function extrairBairroMunicipio(displayName) {
+            console.log('🏠 Display name completo:', displayName);
+            
+            const partes = displayName.split(',').map(parte => parte.trim());
+            console.log('📍 Partes do endereço:', partes);
+            
+            // Formato típico: "Logradouro, Bairro, Município, Estado, País"
+            // Queremos: "Bairro, Município" 
+            
+            if (partes.length >= 3) {
+                // Pega o bairro (segunda parte) e município (terceira parte)
+                const bairro = partes[1] || '';
+                const municipio = partes[2] || '';
+                const resultado = bairro && municipio ? `${bairro}, ${municipio}` : municipio || bairro || partes[0];
+                console.log('🏘️ Resultado extraído:', resultado);
+                return resultado;
+            } else if (partes.length >= 2) {
+                // Se não tem bairro, usa município e estado
+                return `${partes[0]}, ${partes[1]}`;
+            } else {
+                // Fallback para o primeiro elemento
+                return partes[0] || 'Localização não identificada';
+            }
+        }
+
+        const localidadeFormatada = extrairBairroMunicipio(cidadeInfo.display_name);
+
         const climaSimplificado = {
-            cidade: cidadeInfo.display_name.split(',')[0],
+            cidade: localidadeFormatada,
             pais: cidadeInfo.display_name.split(',').pop().trim(),
             temperatura: Math.round(weatherData.temperature_2m * 10) / 10,
             sensacaoTermica: Math.round(weatherData.temperature_2m * 10) / 10,
@@ -258,8 +286,36 @@ app.get('/clima-gratis', async (req, res) => {
             return '🌤️';
         };
 
+        // Processar o display_name para extrair bairro e município
+        function extrairBairroMunicipio(displayName) {
+            console.log('🏠 Display name completo:', displayName);
+            
+            const partes = displayName.split(',').map(parte => parte.trim());
+            console.log('📍 Partes do endereço:', partes);
+            
+            // Formato típico: "Logradouro, Bairro, Município, Estado, País"
+            // Queremos: "Bairro, Município" 
+            
+            if (partes.length >= 3) {
+                // Pega o bairro (segunda parte) e município (terceira parte)
+                const bairro = partes[1] || '';
+                const municipio = partes[2] || '';
+                const resultado = bairro && municipio ? `${bairro}, ${municipio}` : municipio || bairro || partes[0];
+                console.log('🏘️ Resultado extraído:', resultado);
+                return resultado;
+            } else if (partes.length >= 2) {
+                // Se não tem bairro, usa município e estado
+                return `${partes[0]}, ${partes[1]}`;
+            } else {
+                // Fallback para o primeiro elemento
+                return partes[0] || 'Localização não identificada';
+            }
+        }
+
+        const localidadeFormatada = extrairBairroMunicipio(location.display_name);
+
         const climaSimplificado = {
-            cidade: location.display_name.split(',')[0], // Nome da cidade
+            cidade: localidadeFormatada,
             pais: location.display_name.split(',').pop().trim(), // País
             temperatura: Math.round(weatherData.temperature_2m * 10) / 10, // Arredonda para 1 decimal
             sensacaoTermica: Math.round(weatherData.temperature_2m * 10) / 10, // Open-Meteo não tem feels_like
